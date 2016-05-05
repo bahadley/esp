@@ -3,13 +3,31 @@ package telemetry
 import (
 	"fmt"
 	"net"
+    "os"
 
 	"github.com/bahadley/esp/log"
 )
 
-func Ingest() {
+const (
+    defaultAddr = "127.0.0.1"
+    defaultPort = "22221"
 
-	saddr, err := net.ResolveUDPAddr("udp", ":22221")
+    envsaddr = "ESP_ADDR"
+    envport = "ESP_PORT"
+)
+
+func Ingest() {
+    addr := os.Getenv(envsaddr)
+    if len(addr) == 0 {
+        addr = defaultAddr 
+    }
+
+    port := os.Getenv(envport)
+    if len(port) == 0 {
+        port = defaultPort 
+    }
+
+	saddr, err := net.ResolveUDPAddr("udp", addr + ":" + port)
 	if err != nil {
 		log.Logfatalerror(err)
 	}
