@@ -17,17 +17,8 @@ const (
 )
 
 func Ingest() {
-	addr := os.Getenv(envsaddr)
-	if len(addr) == 0 {
-		addr = defaultAddr
-	}
-
-	port := os.Getenv(envport)
-	if len(port) == 0 {
-		port = defaultPort
-	}
-
-	saddr, err := net.ResolveUDPAddr("udp", addr+":"+port)
+	addr := address()
+	saddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
 		log.Logfatalerror(err)
 	}
@@ -40,6 +31,8 @@ func Ingest() {
 
 	buf := make([]byte, 1024)
 
+	log.Logoutput(log.InfoPrefix,
+		fmt.Sprintf("Listening for UDP datagrams (%s) ...", addr))
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		log.Logoutput(log.InfoPrefix,
@@ -49,4 +42,18 @@ func Ingest() {
 			log.Logoutput(log.ErrPrefix, err.Error())
 		}
 	}
+}
+
+func address() string {
+	addr := os.Getenv(envsaddr)
+	if len(addr) == 0 {
+		addr = defaultAddr
+	}
+
+	port := os.Getenv(envport)
+	if len(port) == 0 {
+		port = defaultPort
+	}
+
+	return addr + ":" + port
 }
