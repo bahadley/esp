@@ -21,15 +21,12 @@ const (
 
 var (
 	op chan string
+
+	udpAddr *net.UDPAddr
 )
 
 func Ingest() {
-	saddr, err := resolveAddr()
-	if err != nil {
-		log.Logfatalerror(err)
-	}
-
-	conn, err := net.ListenUDP("udp", saddr)
+	conn, err := net.ListenUDP("udp", udpAddr)
 	if err != nil {
 		log.Logoutput(log.ErrPrefix, err.Error())
 	}
@@ -50,11 +47,11 @@ func Ingest() {
 }
 
 func init() {
+	// Launch operator goroutine and establish channel to it.
 	op = make(chan string, chanbufsz)
 	go operator.Window(op)
-}
 
-func resolveAddr() (*net.UDPAddr, error) {
+	// Build the UDP address that we will listen on.
 	addr := os.Getenv(envsaddr)
 	if len(addr) == 0 {
 		addr = defaultAddr
@@ -65,5 +62,9 @@ func resolveAddr() (*net.UDPAddr, error) {
 		port = defaultPort
 	}
 
-	return net.ResolveUDPAddr("udp", addr+":"+port)
+	var err error
+	udpAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
+	if err != nil {
+		log.Logfatalerror(err)
+	}
 }
