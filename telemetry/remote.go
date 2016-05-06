@@ -15,6 +15,8 @@ const (
 
 	envsaddr = "ESP_ADDR"
 	envport  = "ESP_PORT"
+
+    chanbufsz = 10
 )
 
 var (
@@ -48,7 +50,7 @@ func Ingest() {
 }
 
 func init() {
-	op = make(chan string, 10)
+	op = make(chan string, chanbufsz)
 	go operator.Window(op)
 }
 
