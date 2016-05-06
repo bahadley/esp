@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	defaultAddr = "127.0.0.1"
+	defaultAddr = "localhost"
 	defaultPort = "22221"
 
 	envsaddr = "ESP_ADDR"
 	envport  = "ESP_PORT"
 
-    chanbufsz = 10
+	chanbufsz = 10
 )
 
 var (
