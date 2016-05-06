@@ -18,7 +18,7 @@ const (
 )
 
 var (
-    op chan string
+	op chan string
 )
 
 func Ingest() {
@@ -38,18 +38,18 @@ func Ingest() {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
 			log.Logoutput(log.ErrPrefix, err.Error())
-            continue
+			continue
 		}
 
-        msg := string(buf[0:n])
+		msg := string(buf[0:n])
 		log.Logoutput(log.InfoPrefix, fmt.Sprintf("Recv(%s): %s", caddr, msg))
-        op <- msg
+		op <- msg
 	}
 }
 
 func init() {
-    op = make(chan string, 10)
-    go operator.Window(op)
+	op = make(chan string, 10)
+	go operator.Window(op)
 }
 
 func resolveAddr() (*net.UDPAddr, error) {
@@ -63,5 +63,5 @@ func resolveAddr() (*net.UDPAddr, error) {
 		port = defaultPort
 	}
 
-	return net.ResolveUDPAddr("udp", addr + ":" + port)
+	return net.ResolveUDPAddr("udp", addr+":"+port)
 }
