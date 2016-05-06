@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bahadley/esp/log"
+	"github.com/bahadley/esp/operator"
 )
 
 const (
@@ -16,9 +17,12 @@ const (
 	envport  = "ESP_PORT"
 )
 
+var (
+    op chan string
+)
+
 func Ingest() {
-	addr := address()
-	saddr, err := net.ResolveUDPAddr("udp", addr)
+	saddr, err := resolveAddr()
 	if err != nil {
 		log.Logfatalerror(err)
 	}
@@ -30,21 +34,25 @@ func Ingest() {
 	defer conn.Close()
 
 	buf := make([]byte, 1024)
-
-	log.Logoutput(log.InfoPrefix,
-		fmt.Sprintf("Listening for UDP datagrams (%s) ...", addr))
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
-		log.Logoutput(log.InfoPrefix,
-			fmt.Sprintf("Recv(%s): %s", caddr, string(buf[0:n])))
-
 		if err != nil {
 			log.Logoutput(log.ErrPrefix, err.Error())
+            continue
 		}
+
+        msg := string(buf[0:n])
+		log.Logoutput(log.InfoPrefix, fmt.Sprintf("Recv(%s): %s", caddr, msg))
+        op <- msg
 	}
 }
 
-func address() string {
+func init() {
+    op = make(chan string, 10)
+    go operator.Window(op)
+}
+
+func resolveAddr() (*net.UDPAddr, error) {
 	addr := os.Getenv(envsaddr)
 	if len(addr) == 0 {
 		addr = defaultAddr
@@ -55,5 +63,5 @@ func address() string {
 		port = defaultPort
 	}
 
-	return addr + ":" + port
+	return net.ResolveUDPAddr("udp", addr + ":" + port)
 }
