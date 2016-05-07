@@ -2,7 +2,6 @@ package operator
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"os"
 	"time"
@@ -44,7 +43,8 @@ func Window(ingest chan string) {
 	defer conn.Close()
 
 	var gm gMsg
-	for {
+	sum := 0.0
+	for count := 0; ; count++ {
 		msg := <-ingest
 		err := json.Unmarshal([]byte(msg), &gm)
 		if err != nil {
@@ -52,15 +52,24 @@ func Window(ingest chan string) {
 			continue
 		}
 
-		log.Logoutput(log.InfoPrefix,
-			fmt.Sprintf("Windowed: %s,%s,%s,%f", gm.Sensor,
-				gm.Type, gm.Timestamp, gm.Data))
+		sum += gm.Data
 
-		buf := []byte(gm.Sensor)
-		_, err = conn.Write(buf)
-		if err != nil {
-			log.Logoutput(log.ErrPrefix, err.Error())
-			continue
+		if count%2 == 1 {
+			gm.Type = "TA"
+			gm.Data = sum / 2.0
+			data, err := json.Marshal(gm)
+			if err != nil {
+				log.Logoutput(log.ErrPrefix, err.Error())
+			}
+
+			buf := []byte(data)
+			_, err = conn.Write(buf)
+			if err != nil {
+				log.Logoutput(log.ErrPrefix, err.Error())
+			}
+
+			count = -1
+			sum = 0.0
 		}
 	}
 }
