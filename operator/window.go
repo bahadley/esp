@@ -46,7 +46,7 @@ func Window(ingest chan string) {
 	var gm gMsg
 	for {
 		msg := <-ingest
-        err := json.Unmarshal([]byte(msg), &gm)
+		err := json.Unmarshal([]byte(msg), &gm)
 		if err != nil {
 			log.Logoutput(log.ErrPrefix, err.Error())
 			continue
