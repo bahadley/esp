@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/bahadley/esp/log"
@@ -44,10 +43,10 @@ func Window(ingest chan string) {
 	}
 	defer conn.Close()
 
+	var gm gMsg
 	for {
 		msg := <-ingest
-		var gm gMsg
-		err := json.NewDecoder(strings.NewReader(msg)).Decode(&gm)
+        err := json.Unmarshal([]byte(msg), &gm)
 		if err != nil {
 			log.Logoutput(log.ErrPrefix, err.Error())
 			continue
