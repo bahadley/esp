@@ -32,6 +32,9 @@ func Ingest() {
 	}
 	defer conn.Close()
 
+	log.Logoutput(log.InfoPrefix,
+		fmt.Sprintf("Listening for sensor tuples (%s UDP) ...", udpAddr.String()))
+
 	buf := make([]byte, 1024)
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
@@ -41,7 +44,8 @@ func Ingest() {
 		}
 
 		msg := string(buf[0:n])
-		log.Logoutput(log.InfoPrefix, fmt.Sprintf("Recv(%s): %s", caddr, msg))
+		log.Logoutput(log.InfoPrefix,
+			fmt.Sprintf("Recv(%s): %s", caddr, msg))
 		op <- msg
 	}
 }
