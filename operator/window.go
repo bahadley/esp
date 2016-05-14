@@ -24,6 +24,9 @@ const (
 var (
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
+
+	window []sensorTuple
+	count  int
 )
 
 type (
@@ -35,7 +38,7 @@ type (
 	}
 )
 
-func Window(ingest chan string) {
+func Ingest(ingest chan string) {
 	conn, err := net.DialUDP("udp", srcAddr, dstAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
@@ -43,8 +46,7 @@ func Window(ingest chan string) {
 	defer conn.Close()
 
 	var st sensorTuple
-	sum := 0.0
-	for count := 0; ; count++ {
+	for {
 		msg := <-ingest
 		err := json.Unmarshal([]byte(msg), &st)
 		if err != nil {
@@ -52,11 +54,10 @@ func Window(ingest chan string) {
 			continue
 		}
 
-		sum += st.Data
-
-		if count%2 == 1 {
+		val, threshold := appendTuple(st)
+		if threshold {
 			st.Type = "TA"
-			st.Data = sum / 2.0
+			st.Data = val
 			data, err := json.Marshal(st)
 			if err != nil {
 				log.Warning.Println(err.Error())
@@ -67,11 +68,27 @@ func Window(ingest chan string) {
 			if err != nil {
 				log.Warning.Println(err.Error())
 			}
-
-			count = -1
-			sum = 0.0
 		}
 	}
+}
+
+func appendTuple(st sensorTuple) (float64, bool) {
+	var tmp sensorTuple
+	for idx, val := range window {
+		if idx == 0 {
+			window[idx] = st
+		} else {
+			window[idx] = tmp
+		}
+		tmp = val
+	}
+
+	count++
+	if count == 2 {
+		count = 0
+		return (window[0].Data + window[1].Data) / 2.0, true
+	}
+	return 0.0, false
 }
 
 func init() {
@@ -100,4 +117,6 @@ func init() {
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
+
+	window = make([]sensorTuple, 4)
 }

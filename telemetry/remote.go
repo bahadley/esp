@@ -51,7 +51,7 @@ func Ingest() {
 func init() {
 	// Launch operator goroutine and establish channel to it.
 	op = make(chan string, chanbufsz)
-	go operator.Window(op)
+	go operator.Ingest(op)
 
 	// Build the UDP address that we will listen on.
 	addr := os.Getenv(envsaddr)
