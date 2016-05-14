@@ -48,7 +48,7 @@ func Window(ingest chan string) {
 		msg := <-ingest
 		err := json.Unmarshal([]byte(msg), &gm)
 		if err != nil {
-            log.Warning.Println(err.Error())
+			log.Warning.Println(err.Error())
 			continue
 		}
 
@@ -65,7 +65,7 @@ func Window(ingest chan string) {
 			buf := []byte(data)
 			_, err = conn.Write(buf)
 			if err != nil {
-                log.Warning.Println(err.Error())
+				log.Warning.Println(err.Error())
 			}
 
 			count = -1
@@ -93,11 +93,11 @@ func init() {
 	var err error
 	dstAddr, err = net.ResolveUDPAddr("udp", sinkAddr+":"+sinkPort)
 	if err != nil {
-        log.Error.Fatal(err.Error())
+		log.Error.Fatal(err.Error())
 	}
 
 	srcAddr, err = net.ResolveUDPAddr("udp", addr+":0")
 	if err != nil {
-        log.Error.Fatal(err.Error())
+		log.Error.Fatal(err.Error())
 	}
 }
