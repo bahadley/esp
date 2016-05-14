@@ -1,31 +1,32 @@
 package log
 
 import (
-	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 )
 
-const (
-	appName = "esp"
-
-	// Logging message prefixes
-	InfoPrefix  = "INFO"
-	WarnPrefix  = "WARN"
-	ErrPrefix   = "ERROR"
-	DebugPrefix = "DEBUG"
+var (
+	Trace   *log.Logger
+	Info    *log.Logger
+	Warning *log.Logger
+	Error   *log.Logger
 )
 
 func init() {
-	// Change the device for logging to stdout
-	log.SetOutput(os.Stdout)
-}
+	Trace = log.New(ioutil.Discard,
+		"TRACE: ",
+		log.Ldate|log.Lmicroseconds|log.Lshortfile)
 
-func Logoutput(level string, msg string) {
-	log.Printf("%s: [%s] %s", appName, level, msg)
-}
+	Info = log.New(os.Stdout,
+		"INFO: ",
+		log.Ldate|log.Ltime)
 
-func Logfatalerror(err error) {
-	log.Fatal(fmt.Sprintf("%s: [%s] Exiting ... (%v)",
-		appName, ErrPrefix, err))
+	Warning = log.New(os.Stdout,
+		"WARNING: ",
+		log.Ldate|log.Ltime|log.Lshortfile)
+
+	Error = log.New(os.Stderr,
+		"ERROR: ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 }

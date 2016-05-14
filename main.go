@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	log.Logoutput(log.InfoPrefix, "Starting up ...")
+	log.Info.Println("Starting up ...")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -18,7 +18,7 @@ func main() {
 	go func() {
 		// Block waiting for signal.
 		<-c
-		log.Logoutput(log.InfoPrefix, "Shutting down ...")
+		log.Info.Println("Shutting down ...")
 		os.Exit(0)
 	}()
 

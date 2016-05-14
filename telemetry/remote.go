@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"fmt"
 	"net"
 	"os"
 
@@ -28,24 +27,23 @@ var (
 func Ingest() {
 	conn, err := net.ListenUDP("udp", udpAddr)
 	if err != nil {
-		log.Logoutput(log.ErrPrefix, err.Error())
+		log.Error.Fatal(err.Error())
 	}
 	defer conn.Close()
 
-	log.Logoutput(log.InfoPrefix,
-		fmt.Sprintf("Listening for sensor tuples (%s UDP) ...", udpAddr.String()))
+	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
+		udpAddr.String())
 
 	buf := make([]byte, 1024)
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
-			log.Logoutput(log.ErrPrefix, err.Error())
+			log.Warning.Println(err.Error())
 			continue
 		}
 
 		msg := string(buf[0:n])
-		log.Logoutput(log.InfoPrefix,
-			fmt.Sprintf("Recv(%s): %s", caddr, msg))
+		log.Info.Printf("Recv(%s): %s", caddr, msg)
 		op <- msg
 	}
 }
@@ -69,6 +67,6 @@ func init() {
 	var err error
 	udpAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
 	if err != nil {
-		log.Logfatalerror(err)
+		log.Error.Fatal(err.Error())
 	}
 }

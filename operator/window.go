@@ -38,7 +38,7 @@ type (
 func Window(ingest chan string) {
 	conn, err := net.DialUDP("udp", srcAddr, dstAddr)
 	if err != nil {
-		log.Logoutput(log.ErrPrefix, err.Error())
+		log.Error.Fatal(err.Error())
 	}
 	defer conn.Close()
 
@@ -48,7 +48,7 @@ func Window(ingest chan string) {
 		msg := <-ingest
 		err := json.Unmarshal([]byte(msg), &gm)
 		if err != nil {
-			log.Logoutput(log.ErrPrefix, err.Error())
+            log.Warning.Println(err.Error())
 			continue
 		}
 
@@ -59,13 +59,13 @@ func Window(ingest chan string) {
 			gm.Data = sum / 2.0
 			data, err := json.Marshal(gm)
 			if err != nil {
-				log.Logoutput(log.ErrPrefix, err.Error())
+				log.Warning.Println(err.Error())
 			}
 
 			buf := []byte(data)
 			_, err = conn.Write(buf)
 			if err != nil {
-				log.Logoutput(log.ErrPrefix, err.Error())
+                log.Warning.Println(err.Error())
 			}
 
 			count = -1
@@ -93,11 +93,11 @@ func init() {
 	var err error
 	dstAddr, err = net.ResolveUDPAddr("udp", sinkAddr+":"+sinkPort)
 	if err != nil {
-		log.Logfatalerror(err)
+        log.Error.Fatal(err.Error())
 	}
 
 	srcAddr, err = net.ResolveUDPAddr("udp", addr+":0")
 	if err != nil {
-		log.Logfatalerror(err)
+        log.Error.Fatal(err.Error())
 	}
 }
