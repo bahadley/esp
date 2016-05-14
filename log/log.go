@@ -14,6 +14,7 @@ var (
 )
 
 func init() {
+    // Change ioutil.Discard to os.Stdout to turn on tracing.
 	Trace = log.New(ioutil.Discard,
 		"TRACE: ",
 		log.Ldate|log.Lmicroseconds|log.Lshortfile)
