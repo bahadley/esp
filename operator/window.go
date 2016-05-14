@@ -27,7 +27,7 @@ var (
 )
 
 type (
-	gMsg struct {
+	sensorTuple struct {
 		Sensor    string    `json:"sensor"`
 		Type      string    `json:"type"`
 		Timestamp time.Time `json:"ts"`
@@ -42,22 +42,22 @@ func Window(ingest chan string) {
 	}
 	defer conn.Close()
 
-	var gm gMsg
+	var st sensorTuple
 	sum := 0.0
 	for count := 0; ; count++ {
 		msg := <-ingest
-		err := json.Unmarshal([]byte(msg), &gm)
+		err := json.Unmarshal([]byte(msg), &st)
 		if err != nil {
 			log.Warning.Println(err.Error())
 			continue
 		}
 
-		sum += gm.Data
+		sum += st.Data
 
 		if count%2 == 1 {
-			gm.Type = "TA"
-			gm.Data = sum / 2.0
-			data, err := json.Marshal(gm)
+			st.Type = "TA"
+			st.Data = sum / 2.0
+			data, err := json.Marshal(st)
 			if err != nil {
 				log.Warning.Println(err.Error())
 			}
