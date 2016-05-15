@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net"
 	"os"
-	"time"
 
 	"github.com/bahadley/esp/log"
 )
@@ -17,25 +16,14 @@ const (
 	envsaddr    = "ESP_ADDR"
 	envsinkaddr = "ESP_SINK_ADDR"
 	envsinkport = "ESP_SINK_PORT"
-
-	chanbufsz = 10
 )
 
 var (
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
 
-	window []sensorTuple
+	window []SensorTuple
 	count  int
-)
-
-type (
-	sensorTuple struct {
-		Sensor    string    `json:"sensor"`
-		Type      string    `json:"type"`
-		Timestamp time.Time `json:"ts"`
-		Data      float64   `json:"data"`
-	}
 )
 
 func Ingest(ingest chan string) {
@@ -45,7 +33,7 @@ func Ingest(ingest chan string) {
 	}
 	defer conn.Close()
 
-	var st sensorTuple
+	var st SensorTuple
 	for {
 		msg := <-ingest
 		err := json.Unmarshal([]byte(msg), &st)
@@ -72,8 +60,8 @@ func Ingest(ingest chan string) {
 	}
 }
 
-func appendTuple(st sensorTuple) (float64, bool) {
-	var tmp sensorTuple
+func appendTuple(st SensorTuple) (float64, bool) {
+	var tmp SensorTuple
 	for idx, val := range window {
 		if idx == 0 {
 			window[idx] = st
@@ -118,5 +106,5 @@ func init() {
 		log.Error.Fatal(err.Error())
 	}
 
-	window = make([]sensorTuple, 4)
+	window = make([]SensorTuple, 4)
 }
