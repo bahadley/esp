@@ -1,7 +1,6 @@
 package operator
 
 import (
-	"encoding/json"
 	"net"
 	"os"
 
@@ -30,26 +29,12 @@ func Ingest(ingest chan string) {
 	}
 	defer conn.Close()
 
-	var st SensorTuple
 	for {
 		msg := <-ingest
-		err := json.Unmarshal([]byte(msg), &st)
-		if err != nil {
-			log.Warning.Println(err.Error())
-			continue
-		}
 
-		val, threshold := AppendTuple(st)
+		rslt, threshold := WindowInsert(msg)
 		if threshold {
-			st.Type = "TA"
-			st.Data = val
-			data, err := json.Marshal(st)
-			if err != nil {
-				log.Warning.Println(err.Error())
-			}
-
-			buf := []byte(data)
-			_, err = conn.Write(buf)
+			_, err = conn.Write(rslt)
 			if err != nil {
 				log.Warning.Println(err.Error())
 			}

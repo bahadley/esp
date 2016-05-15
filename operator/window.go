@@ -22,7 +22,15 @@ var (
 	avgFactor float64
 )
 
-func AppendTuple(st SensorTuple) (float64, bool) {
+func WindowInsert(msg string) ([]byte, bool) {
+	var rslt []byte
+	var st SensorTuple
+
+	err := Unmarshal(msg, &st)
+	if err != nil {
+		return rslt, false
+	}
+
 	var tmp SensorTuple
 	for idx, val := range window {
 		if idx == 0 {
@@ -36,9 +44,11 @@ func AppendTuple(st SensorTuple) (float64, bool) {
 	count++
 	if count == trigger {
 		count = 0
-		return (window[0].Data + window[1].Data) / avgFactor, true
+		avg := (window[0].Data + window[1].Data) / avgFactor
+		rslt, err = Marshal(st.Sensor, avg)
+		return rslt, true
 	}
-	return 0.0, false
+	return rslt, false
 }
 
 func init() {
