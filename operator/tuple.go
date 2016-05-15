@@ -1,14 +1,14 @@
 package operator
 
 import (
-    "time"
+	"time"
 )
 
 type (
-    SensorTuple struct {
-        Sensor    string    `json:"sensor"`
-        Type      string    `json:"type"`
-        Timestamp time.Time `json:"ts"`
-        Data      float64   `json:"data"`
-    }   
+	SensorTuple struct {
+		Sensor    string    `json:"sensor"`
+		Type      string    `json:"type"`
+		Timestamp time.Time `json:"ts"`
+		Data      float64   `json:"data"`
+	}
 )

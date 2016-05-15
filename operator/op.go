@@ -21,9 +21,6 @@ const (
 var (
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
-
-	window []SensorTuple
-	count  int
 )
 
 func Ingest(ingest chan string) {
@@ -42,7 +39,7 @@ func Ingest(ingest chan string) {
 			continue
 		}
 
-		val, threshold := appendTuple(st)
+		val, threshold := AppendTuple(st)
 		if threshold {
 			st.Type = "TA"
 			st.Data = val
@@ -58,25 +55,6 @@ func Ingest(ingest chan string) {
 			}
 		}
 	}
-}
-
-func appendTuple(st SensorTuple) (float64, bool) {
-	var tmp SensorTuple
-	for idx, val := range window {
-		if idx == 0 {
-			window[idx] = st
-		} else {
-			window[idx] = tmp
-		}
-		tmp = val
-	}
-
-	count++
-	if count == 2 {
-		count = 0
-		return (window[0].Data + window[1].Data) / 2.0, true
-	}
-	return 0.0, false
 }
 
 func init() {
@@ -105,6 +83,4 @@ func init() {
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
-
-	window = make([]SensorTuple, 4)
 }
