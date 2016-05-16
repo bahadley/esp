@@ -16,39 +16,45 @@ const (
 )
 
 var (
-	window    []*SensorTuple
-	count     int
-	trigger   int
-	avgFactor float64
+	window  []*SensorTuple
+	count   int
+	trigger int
 )
 
 func WindowInsert(msg string) ([]byte, bool) {
 	var rslt []byte
-    var st, tmp *SensorTuple
+	var newTuple, tmp *SensorTuple
 
-    st = new(SensorTuple)
-	err := Unmarshal(msg, st)
+	newTuple = new(SensorTuple)
+	err := Unmarshal(msg, newTuple)
 	if err != nil {
 		return rslt, false
 	}
 
-	for idx, val := range window {
+	for idx, st := range window {
 		if idx == 0 {
-			window[idx] = st
+			window[idx] = newTuple
 		} else {
 			window[idx] = tmp
 		}
-		tmp = val
+		tmp = st
 	}
 
 	count++
 	if count == trigger {
 		count = 0
-		avg := (window[0].Data + window[1].Data) / avgFactor
-		rslt, err = Marshal(st.Sensor, avg)
+		rslt, err = Marshal(newTuple.Sensor, average())
 		return rslt, true
 	}
 	return rslt, false
+}
+
+func average() float64 {
+	sum := 0.0
+	for _, st := range window[0:trigger] {
+		sum += st.Data
+	}
+	return sum / float64(trigger)
 }
 
 func init() {
@@ -76,5 +82,4 @@ func init() {
 	}
 
 	window = make([]*SensorTuple, winlen)
-	avgFactor = float64(trigger)
 }
