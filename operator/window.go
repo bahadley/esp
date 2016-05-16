@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	defaultLength     = 4
-	defaultTriggerQty = 2
+	defaultLength  = 4
+	defaultTrigger = 2
 
 	envWinLen  = "ESP_WINDOW_LENGTH"
 	envWinTrig = "ESP_WINDOW_TRIGGER"
@@ -21,14 +21,13 @@ var (
 	trigger int
 )
 
-func WindowInsert(msg string) ([]byte, bool) {
-	var rslt []byte
+func WindowInsert(msg string) []byte {
 	var newTuple, tmp *SensorTuple
 
 	newTuple = new(SensorTuple)
 	err := Unmarshal(msg, newTuple)
 	if err != nil {
-		return rslt, false
+		return nil
 	}
 
 	for idx, st := range window {
@@ -43,10 +42,14 @@ func WindowInsert(msg string) ([]byte, bool) {
 	count++
 	if count == trigger {
 		count = 0
-		rslt, err = Marshal(newTuple.Sensor, average())
-		return rslt, true
+		rslt, err := Marshal(newTuple.Sensor, average())
+		if err != nil {
+			return nil
+		}
+		return rslt
+	} else {
+		return make([]byte, 0)
 	}
-	return rslt, false
 }
 
 func average() float64 {
@@ -73,7 +76,7 @@ func init() {
 
 	envVal = os.Getenv(envWinTrig)
 	if len(envVal) == 0 {
-		trigger = defaultTriggerQty
+		trigger = defaultTrigger
 	} else {
 		trigger, err = strconv.Atoi(envVal)
 		if err != nil {

@@ -32,8 +32,8 @@ func Ingest(ingest chan string) {
 	for {
 		msg := <-ingest
 
-		rslt, threshold := WindowInsert(msg)
-		if threshold {
+		rslt := WindowInsert(msg)
+		if len(rslt) > 0 {
 			_, err = conn.Write(rslt)
 			if err != nil {
 				log.Warning.Println(err.Error())
