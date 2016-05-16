@@ -54,8 +54,8 @@ func WindowInsert(msg string) []byte {
 
 func average() float64 {
 	sum := 0.0
-	for _, st := range window[0:trigger] {
-		sum += st.Data
+	for i := 0; i < trigger; i++ {
+		sum += window[i].Data
 	}
 	return sum / float64(trigger)
 }
@@ -70,8 +70,14 @@ func init() {
 	} else {
 		winlen, err = strconv.Atoi(envVal)
 		if err != nil {
-			log.Error.Fatalf("Invalid environment variable: %s", envWinLen)
+			log.Error.Fatalf("Invalid environment variable: %s",
+				envWinLen)
 		}
+	}
+
+	if winlen <= 0 {
+		log.Error.Fatalf("Invalid environment variable: %s <= 0",
+			envWinLen)
 	}
 
 	envVal = os.Getenv(envWinTrig)
@@ -80,8 +86,14 @@ func init() {
 	} else {
 		trigger, err = strconv.Atoi(envVal)
 		if err != nil {
-			log.Error.Fatalf("Invalid environment variable: %s", envWinTrig)
+			log.Error.Fatalf("Invalid environment variable: %s",
+				envWinTrig)
 		}
+	}
+
+	if winlen < trigger {
+		log.Error.Fatalf("Invalid environment variables: %s < %s",
+			envWinLen, envWinTrig)
 	}
 
 	window = make([]*SensorTuple, winlen)
