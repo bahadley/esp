@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	defaultCapacity   = 4
+	defaultLength     = 4
 	defaultTriggerQty = 2
 
-	envWinCap  = "ESP_WINDOW_CAPACITY"
+	envWinLen  = "ESP_WINDOW_LENGTH"
 	envWinTrig = "ESP_WINDOW_TRIGGER"
 )
 
@@ -53,15 +53,15 @@ func WindowInsert(msg string) ([]byte, bool) {
 
 func init() {
 	var err error
-	var cap int
+	var winlen int
 
-	envVal := os.Getenv(envWinCap)
+	envVal := os.Getenv(envWinLen)
 	if len(envVal) == 0 {
-		cap = defaultCapacity
+		winlen = defaultLength
 	} else {
-		cap, err = strconv.Atoi(envVal)
+		winlen, err = strconv.Atoi(envVal)
 		if err != nil {
-			log.Error.Fatalf("Invalid environment variable: %s", envWinCap)
+			log.Error.Fatalf("Invalid environment variable: %s", envWinLen)
 		}
 	}
 
@@ -75,6 +75,6 @@ func init() {
 		}
 	}
 
-	window = make([]SensorTuple, cap)
+	window = make([]SensorTuple, winlen)
 	avgFactor = float64(trigger)
 }

@@ -20,5 +20,5 @@ to use default values.
 *ESP_SINK_ADDR*=127.0.0.1 (IPv4 address for the sink node - destination for result stream)   
 *ESP_SINK_PORT*=22220 (port for the sink node - destination for result stream)   
 
-*ESP_WINDOW_CAPACITY*=4 (max capacity of the window operator)   
+*ESP_WINDOW_LENGTH*=4 (max length of the window)   
 *ESP_WINDOW_TRIGGER*=2 (number of ingested tuples that will trigger an egress result tuple)
