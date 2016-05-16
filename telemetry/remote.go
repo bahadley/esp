@@ -19,8 +19,6 @@ const (
 )
 
 var (
-	op chan string
-
 	udpAddr *net.UDPAddr
 )
 
@@ -33,6 +31,9 @@ func Ingest() {
 
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
 		udpAddr.String())
+
+	op := make(chan string, chanbufsz)
+	go operator.Ingest(op)
 
 	buf := make([]byte, 1024)
 	for {
@@ -49,10 +50,6 @@ func Ingest() {
 }
 
 func init() {
-	// Launch operator goroutine and establish channel to it.
-	op = make(chan string, chanbufsz)
-	go operator.Ingest(op)
-
 	// Build the UDP address that we will listen on.
 	addr := os.Getenv(envsaddr)
 	if len(addr) == 0 {

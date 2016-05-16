@@ -12,7 +12,7 @@ import (
 func main() {
 	log.Info.Println("Starting up ...")
 
-	c := make(chan os.Signal, 1)
+	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
