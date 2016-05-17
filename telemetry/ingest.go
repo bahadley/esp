@@ -14,8 +14,6 @@ const (
 
 	envsaddr = "ESP_ADDR"
 	envport  = "ESP_PORT"
-
-	chanbufsz = 10
 )
 
 var (
@@ -32,8 +30,7 @@ func Ingest() {
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
 		udpAddr.String())
 
-	op := make(chan string, chanbufsz)
-	go operator.Ingest(op)
+	go operator.Ingest()
 
 	buf := make([]byte, 1024)
 	for {
@@ -45,7 +42,7 @@ func Ingest() {
 
 		msg := string(buf[0:n])
 		log.Info.Printf("Recv(%s): %s", caddr, msg)
-		op <- msg
+		operator.IngestChan <- msg
 	}
 }
 

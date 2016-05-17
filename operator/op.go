@@ -15,14 +15,18 @@ const (
 	envsaddr    = "ESP_ADDR"
 	envsinkaddr = "ESP_SINK_ADDR"
 	envsinkport = "ESP_SINK_PORT"
+
+	chanbufsz = 10
 )
 
 var (
+	IngestChan chan string
+
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
 )
 
-func Ingest(ingest chan string) {
+func Ingest() {
 	conn, err := net.DialUDP("udp", srcAddr, dstAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
@@ -30,7 +34,7 @@ func Ingest(ingest chan string) {
 	defer conn.Close()
 
 	for {
-		msg := <-ingest
+		msg := <-IngestChan
 
 		rslt := WindowInsert(msg)
 		if len(rslt) > 0 {
@@ -68,4 +72,6 @@ func init() {
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
+
+	IngestChan = make(chan string, chanbufsz)
 }
