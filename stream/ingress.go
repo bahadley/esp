@@ -20,7 +20,7 @@ var (
 	IngestAddr *net.UDPAddr
 )
 
-func Ingest() {
+func Ingress() {
 	conn, err := net.ListenUDP("udp", IngestAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
