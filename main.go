@@ -6,7 +6,7 @@ import (
 	"syscall"
 
 	"github.com/bahadley/esp/log"
-	"github.com/bahadley/esp/telemetry"
+	"github.com/bahadley/esp/stream"
 )
 
 func main() {
@@ -22,5 +22,5 @@ func main() {
 		os.Exit(0)
 	}()
 
-	telemetry.Ingest()
+	stream.Ingest()
 }
