@@ -3,6 +3,7 @@ package operator
 import (
 	"os"
 	"strconv"
+	"sync"
 	"sync/atomic"
 
 	"github.com/bahadley/esp/log"
@@ -20,6 +21,9 @@ var (
 	window           []*SensorTuple
 	trigger          uint32
 	unprocessedCount uint32
+
+	// Used for window modification critical section.
+	mutex sync.Mutex
 )
 
 func WindowAppend(msg string) error {
@@ -54,6 +58,22 @@ func WindowAppend(msg string) error {
 	}
 
 	return nil
+}
+
+func insert(tmp *SensorTuple) {
+	inserted := false
+
+	mutex.Lock()
+	{
+		for idx, st := range window {
+			if inserted || (st != nil && tmp.Timestamp.Before(st.Timestamp)) {
+				window[idx] = tmp
+				tmp = st
+				inserted = true
+			}
+		}
+	}
+	mutex.Unlock()
 }
 
 func average() float64 {
