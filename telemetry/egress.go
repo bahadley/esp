@@ -33,6 +33,8 @@ func Egress() {
 	for {
 		msg := <-operator.EgressChan
 
+		log.Info.Printf("Tx(%s): %s", dstAddr, msg)
+
 		_, err = conn.Write(msg)
 		if err != nil {
 			log.Warning.Println(err.Error())

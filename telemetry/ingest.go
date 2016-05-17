@@ -33,7 +33,7 @@ func Ingest() {
 	go Egress()
 	go operator.Ingest()
 
-	buf := make([]byte, 1024)
+	buf := make([]byte, 128, 1024)
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
@@ -42,7 +42,7 @@ func Ingest() {
 		}
 
 		msg := string(buf[0:n])
-		log.Info.Printf("Recv(%s): %s", caddr, msg)
+		log.Info.Printf("Rx(%s): %s", caddr, msg)
 		operator.IngestChan <- msg
 	}
 }
