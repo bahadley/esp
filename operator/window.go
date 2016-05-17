@@ -81,7 +81,7 @@ func insert(tmp *SensorTuple) bool {
 }
 
 func aggregate() float64 {
-	// Calculate the aggregation and flush the tuples.
+	// Calculate the aggregation and flush the tuples that were used.
 	sum := 0.0
 	for idx := bufSz - aggSz; idx < bufSz; idx++ {
 		sum += window[idx].Data
