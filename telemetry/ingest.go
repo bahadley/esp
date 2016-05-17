@@ -30,7 +30,7 @@ func Ingest() {
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
 		IngestAddr.String())
 
-    go Egress()
+	go Egress()
 	go operator.Ingest()
 
 	buf := make([]byte, 1024)
