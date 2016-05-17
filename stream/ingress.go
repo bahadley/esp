@@ -14,6 +14,9 @@ const (
 
 	envIngressAddr = "ESP_ADDR"
 	envIngressPort = "ESP_PORT"
+
+	msgBufLen = 128
+	msgBufCap = 1024
 )
 
 var (
@@ -33,7 +36,7 @@ func Ingress() {
 	go Egress()
 	go operator.Ingest()
 
-	buf := make([]byte, 128, 1024)
+	buf := make([]byte, msgBufLen, msgBufCap)
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
