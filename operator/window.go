@@ -21,13 +21,14 @@ var (
 	trigger int
 )
 
-func WindowInsert(msg string) []byte {
+func WindowAppend(msg string) error {
 	var newTuple, tmp *SensorTuple
 
 	newTuple = new(SensorTuple)
 	err := Unmarshal(msg, newTuple)
 	if err != nil {
-		return nil
+		log.Warning.Printf("Failed to unmarshal tuple: %s", msg)
+		return err
 	}
 
 	for idx, st := range window {
@@ -44,12 +45,14 @@ func WindowInsert(msg string) []byte {
 		count = 0
 		rslt, err := Marshal(newTuple.Sensor, average())
 		if err != nil {
-			return nil
+			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
+				newTuple.Sensor)
+			return err
 		}
-		return rslt
-	} else {
-		return make([]byte, 0)
+		EgressChan <- rslt
 	}
+
+	return nil
 }
 
 func average() float64 {

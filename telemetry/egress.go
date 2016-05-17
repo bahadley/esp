@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/bahadley/esp/log"
+	"github.com/bahadley/esp/operator"
 )
 
 const (
@@ -15,13 +16,9 @@ const (
 	envEgressAddr = "ESP_ADDR"
 	envSinkAddr   = "ESP_SINK_ADDR"
 	envSinkPort   = "ESP_SINK_PORT"
-
-	chanbufsz = 10
 )
 
 var (
-	EgressChan chan []byte
-
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
 )
@@ -34,7 +31,7 @@ func Egress() {
 	defer conn.Close()
 
 	for {
-		msg := <-EgressChan
+		msg := <-operator.EgressChan
 
 		_, err = conn.Write(msg)
 		if err != nil {
@@ -69,6 +66,4 @@ func init() {
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
-
-	EgressChan = make(chan []byte, chanbufsz)
 }
