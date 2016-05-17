@@ -61,16 +61,19 @@ func WindowAppend(msg string) error {
 }
 
 func insert(tmp *SensorTuple) {
-	inserted := false
-
 	mutex.Lock()
 	{
-		for idx, st := range window {
-			if inserted ||
-				(!inserted && st != nil && tmp.Timestamp.Before(st.Timestamp)) {
-				window[idx] = tmp
-				tmp = st
-				inserted = true
+		if window[0] == nil {
+			window[0] = tmp
+		} else {
+			inserted := false
+			for idx, st := range window {
+				if inserted ||
+					(!inserted && st != nil && tmp.Timestamp.After(st.Timestamp)) {
+					window[idx] = tmp
+					tmp = st
+					inserted = true
+				}
 			}
 		}
 	}
