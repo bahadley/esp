@@ -12,7 +12,7 @@ var (
 func Ingest() {
 	for {
 		msg := <-IngestChan
-		_ = WindowAppend(msg)
+		_ = WindowInsert(msg)
 	}
 }
 

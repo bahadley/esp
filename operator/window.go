@@ -4,7 +4,6 @@ import (
 	"os"
 	"strconv"
 	"sync"
-	"sync/atomic"
 
 	"github.com/bahadley/esp/log"
 )
@@ -21,82 +20,81 @@ var (
 	// Invariant:  Descending order by SensorTuple.Timestamp
 	window []*SensorTuple
 
-	trigger          uint32
-	unprocessedCount uint32
+	length  uint32
+	trigger uint32
 
 	// Used for window modification critical section.
 	mutex sync.Mutex
 )
 
-func WindowAppend(msg string) error {
+func WindowInsert(msg string) error {
 	newTuple := new(SensorTuple)
+
 	err := Unmarshal(msg, newTuple)
 	if err != nil {
 		log.Warning.Printf("Failed to unmarshal tuple: %s", msg)
-		return err
-	}
-
-	insert(newTuple)
-
-	atomic.AddUint32(&unprocessedCount, 1)
-	if unprocessedCount == trigger {
-		atomic.StoreUint32(&unprocessedCount, 0)
-		rslt, err := Marshal(newTuple.Sensor, average())
-		if err != nil {
-			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
-				newTuple.Sensor)
-			return err
-		}
-		EgressChan <- rslt
-	}
-
-	return nil
-}
-
-func insert(tmp *SensorTuple) {
-	mutex.Lock()
-	{
-		if window[0] == nil {
-			window[0] = tmp
-		} else {
-			inserted := false
-			for idx, st := range window {
-				if inserted ||
-					(!inserted && st != nil && tmp.Timestamp.After(st.Timestamp)) {
-					window[idx] = tmp
-					tmp = st
-					inserted = true
+	} else {
+		mutex.Lock()
+		{
+			if insert(newTuple) && window[length-1] != nil {
+				avg := aggregate()
+				aggTuple, err := Marshal(newTuple.Sensor, avg)
+				if err != nil {
+					log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
+						newTuple.Sensor)
+				} else {
+					EgressChan <- aggTuple
 				}
 			}
 		}
+		mutex.Unlock()
 	}
-	mutex.Unlock()
+
+	return err
 }
 
-func average() float64 {
+func insert(tmp *SensorTuple) bool {
+	inserted := false
+
+	if window[0] == nil {
+		window[0] = tmp
+	} else {
+		for idx, st := range window {
+			if inserted ||
+				(!inserted && st != nil && tmp.Timestamp.After(st.Timestamp)) {
+				window[idx] = tmp
+				tmp = st
+				inserted = true
+			}
+		}
+	}
+
+	return inserted
+}
+
+func aggregate() float64 {
 	sum := 0.0
-	for i := uint32(0); i < trigger; i++ {
-		sum += window[i].Data
+	for idx := length - trigger; idx < length; idx++ {
+		sum += window[idx].Data
+		window[idx] = nil
 	}
 	return sum / float64(trigger)
 }
 
 func init() {
-	var winlen uint32
-
 	envVal := os.Getenv(envWinLen)
 	if len(envVal) == 0 {
-		winlen = defaultLength
+		length = defaultLength
 	} else {
 		val, err := strconv.Atoi(envVal)
 		if err != nil {
 			log.Error.Fatalf("Invalid environment variable: %s",
 				envWinLen)
 		}
-		winlen = uint32(val)
+		length = uint32(val)
 	}
 
-	if winlen <= 0 {
+	if length <= 0 {
 		log.Error.Fatalf("Invalid environment variable: %s <= 0",
 			envWinLen)
 	}
@@ -113,10 +111,10 @@ func init() {
 		trigger = uint32(val)
 	}
 
-	if winlen < trigger {
+	if length < trigger {
 		log.Error.Fatalf("Invalid environment variables: %s < %s",
 			envWinLen, envWinTrig)
 	}
 
-	window = make([]*SensorTuple, winlen)
+	window = make([]*SensorTuple, length)
 }
