@@ -16,9 +16,9 @@ const (
 )
 
 var (
-	window  []*SensorTuple
-	count   int
-	trigger int
+	window           []*SensorTuple
+	trigger          uint32
+	unprocessedCount uint32
 )
 
 func WindowAppend(msg string) error {
@@ -40,9 +40,9 @@ func WindowAppend(msg string) error {
 		tmp = st
 	}
 
-	count++
-	if count == trigger {
-		count = 0
+	unprocessedCount++
+	if unprocessedCount == trigger {
+		unprocessedCount = 0
 		rslt, err := Marshal(newTuple.Sensor, average())
 		if err != nil {
 			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
@@ -57,25 +57,25 @@ func WindowAppend(msg string) error {
 
 func average() float64 {
 	sum := 0.0
-	for i := 0; i < trigger; i++ {
+	for i := uint32(0); i < trigger; i++ {
 		sum += window[i].Data
 	}
 	return sum / float64(trigger)
 }
 
 func init() {
-	var err error
-	var winlen int
+	var winlen uint32
 
 	envVal := os.Getenv(envWinLen)
 	if len(envVal) == 0 {
 		winlen = defaultLength
 	} else {
-		winlen, err = strconv.Atoi(envVal)
+		val, err := strconv.Atoi(envVal)
 		if err != nil {
 			log.Error.Fatalf("Invalid environment variable: %s",
 				envWinLen)
 		}
+		winlen = uint32(val)
 	}
 
 	if winlen <= 0 {
@@ -87,11 +87,12 @@ func init() {
 	if len(envVal) == 0 {
 		trigger = defaultTrigger
 	} else {
-		trigger, err = strconv.Atoi(envVal)
+		val, err := strconv.Atoi(envVal)
 		if err != nil {
 			log.Error.Fatalf("Invalid environment variable: %s",
 				envWinTrig)
 		}
+		trigger = uint32(val)
 	}
 
 	if winlen < trigger {
