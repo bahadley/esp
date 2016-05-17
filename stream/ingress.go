@@ -9,26 +9,26 @@ import (
 )
 
 const (
-	defaultIngestAddr = "localhost"
-	defaultIngestPort = "22221"
+	defaultIngressAddr = "localhost"
+	defaultIngressPort = "22221"
 
-	envIngestAddr = "ESP_ADDR"
-	envIngestPort = "ESP_PORT"
+	envIngressAddr = "ESP_ADDR"
+	envIngressPort = "ESP_PORT"
 )
 
 var (
-	IngestAddr *net.UDPAddr
+	IngressAddr *net.UDPAddr
 )
 
 func Ingress() {
-	conn, err := net.ListenUDP("udp", IngestAddr)
+	conn, err := net.ListenUDP("udp", IngressAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
 	defer conn.Close()
 
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
-		IngestAddr.String())
+		IngressAddr.String())
 
 	go Egress()
 	go operator.Ingest()
@@ -49,18 +49,18 @@ func Ingress() {
 
 func init() {
 	// Build the UDP address that we will listen on.
-	addr := os.Getenv(envIngestAddr)
+	addr := os.Getenv(envIngressAddr)
 	if len(addr) == 0 {
-		addr = defaultIngestAddr
+		addr = defaultIngressAddr
 	}
 
-	port := os.Getenv(envIngestPort)
+	port := os.Getenv(envIngressPort)
 	if len(port) == 0 {
-		port = defaultIngestPort
+		port = defaultIngressPort
 	}
 
 	var err error
-	IngestAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
+	IngressAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
