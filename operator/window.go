@@ -66,7 +66,8 @@ func insert(tmp *SensorTuple) {
 	mutex.Lock()
 	{
 		for idx, st := range window {
-			if inserted || (st != nil && tmp.Timestamp.Before(st.Timestamp)) {
+			if inserted ||
+				(!inserted && st != nil && tmp.Timestamp.Before(st.Timestamp)) {
 				window[idx] = tmp
 				tmp = st
 				inserted = true
