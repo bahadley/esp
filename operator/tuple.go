@@ -7,6 +7,10 @@ import (
 	"github.com/bahadley/esp/log"
 )
 
+const (
+	aggregateId = "TA"
+)
+
 type (
 	SensorTuple struct {
 		Sensor    string    `json:"sensor"`
@@ -28,7 +32,7 @@ func Marshal(sensor string, data float64) ([]byte, error) {
 	var st SensorTuple
 
 	st.Sensor = sensor
-	st.Type = "TA"
+	st.Type = aggregateId
 	st.Timestamp = time.Now().UTC()
 	st.Data = data
 
