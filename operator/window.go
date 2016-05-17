@@ -18,7 +18,9 @@ const (
 )
 
 var (
-	window           []*SensorTuple
+	// Invariant:  Descending order by SensorTuple.Timestamp
+	window []*SensorTuple
+
 	trigger          uint32
 	unprocessedCount uint32
 
@@ -27,23 +29,14 @@ var (
 )
 
 func WindowAppend(msg string) error {
-	var newTuple, tmp *SensorTuple
-
-	newTuple = new(SensorTuple)
+	newTuple := new(SensorTuple)
 	err := Unmarshal(msg, newTuple)
 	if err != nil {
 		log.Warning.Printf("Failed to unmarshal tuple: %s", msg)
 		return err
 	}
 
-	for idx, st := range window {
-		if idx == 0 {
-			window[idx] = newTuple
-		} else {
-			window[idx] = tmp
-		}
-		tmp = st
-	}
+	insert(newTuple)
 
 	atomic.AddUint32(&unprocessedCount, 1)
 	if unprocessedCount == trigger {
