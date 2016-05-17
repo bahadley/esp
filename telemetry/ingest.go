@@ -9,26 +9,26 @@ import (
 )
 
 const (
-	defaultAddr = "localhost"
-	defaultPort = "22221"
+	defaultIngestAddr = "localhost"
+	defaultIngestPort = "22221"
 
-	envsaddr = "ESP_ADDR"
-	envport  = "ESP_PORT"
+	envIngestAddr = "ESP_ADDR"
+	envIngestPort = "ESP_PORT"
 )
 
 var (
-	udpAddr *net.UDPAddr
+	IngestAddr *net.UDPAddr
 )
 
 func Ingest() {
-	conn, err := net.ListenUDP("udp", udpAddr)
+	conn, err := net.ListenUDP("udp", IngestAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
 	defer conn.Close()
 
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
-		udpAddr.String())
+		IngestAddr.String())
 
 	go operator.Ingest()
 
@@ -48,18 +48,18 @@ func Ingest() {
 
 func init() {
 	// Build the UDP address that we will listen on.
-	addr := os.Getenv(envsaddr)
+	addr := os.Getenv(envIngestAddr)
 	if len(addr) == 0 {
-		addr = defaultAddr
+		addr = defaultIngestAddr
 	}
 
-	port := os.Getenv(envport)
+	port := os.Getenv(envIngestPort)
 	if len(port) == 0 {
-		port = defaultPort
+		port = defaultIngestPort
 	}
 
 	var err error
-	udpAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
+	IngestAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
