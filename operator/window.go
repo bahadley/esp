@@ -3,6 +3,7 @@ package operator
 import (
 	"os"
 	"strconv"
+	"sync/atomic"
 
 	"github.com/bahadley/esp/log"
 )
@@ -40,9 +41,9 @@ func WindowAppend(msg string) error {
 		tmp = st
 	}
 
-	unprocessedCount++
+	atomic.AddUint32(&unprocessedCount, 1)
 	if unprocessedCount == trigger {
-		unprocessedCount = 0
+		atomic.StoreUint32(&unprocessedCount, 0)
 		rslt, err := Marshal(newTuple.Sensor, average())
 		if err != nil {
 			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
