@@ -16,9 +16,9 @@ to use default values.
 ### Configurable environment variables ###
 
 *ESP_ADDR*=127.0.0.1 (IPv4 address for the esp node - listens on for ingress sensor tuples)    
-*ESP_PORT*=22221 (port for the esp node - listens on for ingress sensor tuples)    
+*ESP_PORT*=22221 (Port for the esp node - listens on for ingress sensor tuples)    
 *ESP_SINK_ADDR*=127.0.0.1 (IPv4 address for the sink node - destination for result stream)   
-*ESP_SINK_PORT*=22220 (port for the sink node - destination for result stream)   
+*ESP_SINK_PORT*=22220 (Port for the sink node - destination for result stream)   
 
-*ESP_WINDOW_LENGTH*=4 (max length of the window)   
-*ESP_WINDOW_TRIGGER*=2 (number of ingested tuples that will trigger an egress result tuple)
+*ESP_WINDOW_SIZE*=4 (Maximum number of tuples that can be buffered in the window)   
+*ESP_AGGREGATE_SIZE*=2 (Number of tuples that will trigger an egress result tuple)

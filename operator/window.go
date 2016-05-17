@@ -9,19 +9,19 @@ import (
 )
 
 const (
-	defaultLength  = 4
-	defaultTrigger = 2
+	defaultBufSz = 4
+	defaultAggSz = 2
 
-	envWinLen  = "ESP_WINDOW_LENGTH"
-	envWinTrig = "ESP_WINDOW_TRIGGER"
+	envWinSz = "ESP_WINDOW_SIZE"
+	envAggSz = "ESP_AGGREGATE_SIZE"
 )
 
 var (
 	// Invariant:  Descending order by SensorTuple.Timestamp
 	window []*SensorTuple
 
-	length  uint32
-	trigger uint32
+	bufSz uint32
+	aggSz uint32
 
 	// Used for window modification critical section.
 	mutex sync.Mutex
@@ -36,7 +36,7 @@ func WindowInsert(msg string) error {
 	} else {
 		mutex.Lock()
 		{
-			if insert(newTuple) && window[length-1] != nil {
+			if insert(newTuple) && window[bufSz-1] != nil {
 				avg := aggregate()
 				aggTuple, err := Marshal(newTuple.Sensor, avg)
 				if err != nil {
@@ -74,47 +74,47 @@ func insert(tmp *SensorTuple) bool {
 
 func aggregate() float64 {
 	sum := 0.0
-	for idx := length - trigger; idx < length; idx++ {
+	for idx := bufSz - aggSz; idx < bufSz; idx++ {
 		sum += window[idx].Data
 		window[idx] = nil
 	}
-	return sum / float64(trigger)
+	return sum / float64(aggSz)
 }
 
 func init() {
-	envVal := os.Getenv(envWinLen)
+	envVal := os.Getenv(envWinSz)
 	if len(envVal) == 0 {
-		length = defaultLength
+		bufSz = defaultBufSz
 	} else {
 		val, err := strconv.Atoi(envVal)
 		if err != nil {
 			log.Error.Fatalf("Invalid environment variable: %s",
-				envWinLen)
+				envWinSz)
 		}
-		length = uint32(val)
+		bufSz = uint32(val)
 	}
 
-	if length <= 0 {
+	if bufSz <= 0 {
 		log.Error.Fatalf("Invalid environment variable: %s <= 0",
-			envWinLen)
+			envWinSz)
 	}
 
-	envVal = os.Getenv(envWinTrig)
+	envVal = os.Getenv(envAggSz)
 	if len(envVal) == 0 {
-		trigger = defaultTrigger
+		aggSz = defaultAggSz
 	} else {
 		val, err := strconv.Atoi(envVal)
 		if err != nil {
 			log.Error.Fatalf("Invalid environment variable: %s",
-				envWinTrig)
+				envAggSz)
 		}
-		trigger = uint32(val)
+		aggSz = uint32(val)
 	}
 
-	if length < trigger {
+	if bufSz < aggSz {
 		log.Error.Fatalf("Invalid environment variables: %s < %s",
-			envWinLen, envWinTrig)
+			envWinSz, envAggSz)
 	}
 
-	window = make([]*SensorTuple, length)
+	window = make([]*SensorTuple, bufSz)
 }
