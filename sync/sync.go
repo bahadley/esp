@@ -43,7 +43,7 @@ func Ingress() {
 
 		msg := string(buf[0:n])
 		log.Info.Printf("Sync(%s): %s", caddr, msg)
-		operator.IngestChan <- msg
+		operator.QueueMsg(msg)
 	}
 }
 

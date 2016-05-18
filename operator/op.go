@@ -1,5 +1,9 @@
 package operator
 
+import (
+	"sync"
+)
+
 const (
 	chanbufsz = 10
 )
@@ -7,6 +11,9 @@ const (
 var (
 	IngestChan chan string
 	EgressChan chan []byte
+
+	// Used for IngestChan write critical section.
+	ingestMutex sync.Mutex
 )
 
 func Ingest() {
@@ -14,6 +21,14 @@ func Ingest() {
 		msg := <-IngestChan
 		_ = WindowInsert(msg)
 	}
+}
+
+func QueueMsg(msg string) {
+	ingestMutex.Lock()
+	{
+		IngestChan <- msg
+	}
+	ingestMutex.Unlock()
 }
 
 func init() {
