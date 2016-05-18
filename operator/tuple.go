@@ -17,7 +17,6 @@ type (
 		Type      string    `json:"type"`
 		Timestamp time.Time `json:"ts"`
 		Data      float64   `json:"data"`
-		Processed bool      `json:"-"` // Hidden field
 	}
 )
 
