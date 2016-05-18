@@ -1,4 +1,4 @@
-package stream
+package sync
 
 import (
 	"net"
@@ -31,7 +31,7 @@ func Ingress() {
 	defer conn.Close()
 
 	log.Info.Printf("Listening for synchronization tuples (%s UDP) ...",
-		IngressAddr.String())
+		SyncAddr.String())
 
 	buf := make([]byte, msgBufLen, msgBufCap)
 	for {

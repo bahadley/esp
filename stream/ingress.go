@@ -33,9 +33,6 @@ func Ingress() {
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
 		IngressAddr.String())
 
-	go Egress()
-	go operator.Ingest()
-
 	buf := make([]byte, msgBufLen, msgBufCap)
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)

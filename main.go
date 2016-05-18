@@ -6,7 +6,9 @@ import (
 	"syscall"
 
 	"github.com/bahadley/esp/log"
+	"github.com/bahadley/esp/operator"
 	"github.com/bahadley/esp/stream"
+	"github.com/bahadley/esp/sync"
 )
 
 func main() {
@@ -22,5 +24,8 @@ func main() {
 		os.Exit(0)
 	}()
 
+	go stream.Egress()
+	go sync.Ingress()
+	go operator.Ingest()
 	stream.Ingress()
 }
