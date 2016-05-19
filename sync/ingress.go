@@ -2,36 +2,33 @@ package sync
 
 import (
 	"net"
-	"os"
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
+	"github.com/bahadley/esp/system"
 )
 
 const (
-	defaultSyncAddr = "localhost"
-	defaultSyncPort = "22219"
-
-	envSyncAddr = "ESP_ADDR"
-	envSyncPort = "ESP_SYNC_PORT"
-
 	msgBufLen = 128
 	msgBufCap = 1024
 )
 
-var (
-	SyncAddr *net.UDPAddr
-)
-
 func Ingress() {
-	conn, err := net.ListenUDP("udp", SyncAddr)
+	syncAddr, err := net.ResolveUDPAddr("udp",
+		system.NodeAddr()+":"+system.SyncPort())
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
+
+	conn, err := net.ListenUDP("udp", syncAddr)
+	if err != nil {
+		log.Error.Fatal(err.Error())
+	}
+
 	defer conn.Close()
 
 	log.Info.Printf("Listening for synchronization tuples (%s UDP) ...",
-		SyncAddr.String())
+		syncAddr.String())
 
 	buf := make([]byte, msgBufLen, msgBufCap)
 	for {
@@ -44,24 +41,5 @@ func Ingress() {
 		msg := buf[0:n]
 		log.Info.Printf("Sync(%s): %s", caddr, msg)
 		operator.QueueMsg(msg)
-	}
-}
-
-func init() {
-	// Build the UDP address that we will listen on.
-	addr := os.Getenv(envSyncAddr)
-	if len(addr) == 0 {
-		addr = defaultSyncAddr
-	}
-
-	port := os.Getenv(envSyncPort)
-	if len(port) == 0 {
-		port = defaultSyncPort
-	}
-
-	var err error
-	SyncAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
-	if err != nil {
-		log.Error.Fatal(err.Error())
 	}
 }
