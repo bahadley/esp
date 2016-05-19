@@ -39,8 +39,11 @@ func main() {
 		go stream.Egress()
 		go sync.Ingress()
 		go operator.Ingest()
+		stream.Ingress(true)
+	} else {
+		go sync.Egress()
+		stream.Ingress(false)
 	}
-	stream.Ingress()
 }
 
 func init() {

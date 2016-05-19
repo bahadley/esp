@@ -6,6 +6,7 @@ import (
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
+	"github.com/bahadley/esp/sync"
 )
 
 const (
@@ -23,7 +24,7 @@ var (
 	IngressAddr *net.UDPAddr
 )
 
-func Ingress() {
+func Ingress(master bool) {
 	conn, err := net.ListenUDP("udp", IngressAddr)
 	if err != nil {
 		log.Error.Fatal(err.Error())
@@ -43,7 +44,12 @@ func Ingress() {
 
 		msg := string(buf[0:n])
 		log.Info.Printf("Rx(%s): %s", caddr, msg)
-		operator.QueueMsg(msg)
+
+		if master {
+			operator.QueueMsg(msg)
+		} else {
+			sync.SyncChan <- msg
+		}
 	}
 }
 
