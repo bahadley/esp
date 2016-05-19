@@ -3,12 +3,23 @@ package main
 import (
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
 	"github.com/bahadley/esp/stream"
 	"github.com/bahadley/esp/sync"
+)
+
+const (
+	envMaster = "ESP_MASTER"
+
+	masterFlag = "NO"
+)
+
+var (
+	master bool = true
 )
 
 func main() {
@@ -24,8 +35,17 @@ func main() {
 		os.Exit(0)
 	}()
 
-	go stream.Egress()
-	go sync.Ingress()
-	go operator.Ingest()
+	if master {
+		go stream.Egress()
+		go sync.Ingress()
+		go operator.Ingest()
+	}
 	stream.Ingress()
+}
+
+func init() {
+	m := os.Getenv(envMaster)
+	if len(m) == 0 && strings.ToUpper(m) == masterFlag {
+		master = false
+	}
 }
