@@ -23,7 +23,7 @@ var (
 	dstAddr *net.UDPAddr
 	srcAddr *net.UDPAddr
 
-	SyncChan chan string
+	SyncChan chan []byte
 )
 
 func Egress() {
@@ -36,11 +36,9 @@ func Egress() {
 	for {
 		msg := <-SyncChan
 
-		var tx []byte
-		copy(tx[:], msg)
-		log.Info.Printf("Tx(%s): %s", dstAddr, tx)
+		log.Info.Printf("Tx(%s): %s", dstAddr, msg)
 
-		_, err = conn.Write(tx)
+		_, err = conn.Write(msg)
 		if err != nil {
 			log.Warning.Println(err.Error())
 		}
@@ -74,5 +72,5 @@ func init() {
 		log.Error.Fatal(err.Error())
 	}
 
-	SyncChan = make(chan string, chanbufsz)
+	SyncChan = make(chan []byte, chanbufsz)
 }

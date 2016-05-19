@@ -48,7 +48,7 @@ func Ingress(master bool) {
 		if master {
 			operator.QueueMsg(msg)
 		} else {
-			sync.SyncChan <- msg
+			sync.SyncChan <- buf[0:n] 
 		}
 	}
 }
