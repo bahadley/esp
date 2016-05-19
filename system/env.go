@@ -2,6 +2,7 @@ package system
 
 import (
 	"os"
+	"strings"
 )
 
 const (
@@ -38,7 +39,7 @@ var (
 func init() {
 	m := os.Getenv(envMaster)
 	if len(m) > 0 && strings.ToUpper(m) == masterFlag {
-		master = true
+		Master = true
 	}
 
 	NodeAddr := os.Getenv(envNodeAddr)
