@@ -1,19 +1,9 @@
 package operator
 
 import (
-	"os"
-	"strconv"
 	"sync"
 
 	"github.com/bahadley/esp/log"
-)
-
-const (
-	defaultBufSz = 4
-	defaultAggSz = 2
-
-	envWinSz = "ESP_WINDOW_SIZE"
-	envAggSz = "ESP_AGGREGATE_SIZE"
 )
 
 var (
@@ -60,8 +50,8 @@ func insert(tmp *SensorTuple) bool {
 	inserted := false
 
 	if window[0] == nil {
-		// Can only occur for the very first tuple received by the operator.
-		// Having this case simplifies the remaining logic.
+		// This case only occurs for the very first tuple received by the operator.
+		// Handling this special case simplifies the remaining logic.
 		window[0] = tmp
 	} else {
 		for idx, st := range window {
@@ -91,34 +81,8 @@ func aggregate() float64 {
 }
 
 func init() {
-	envVal := os.Getenv(envWinSz)
-	if len(envVal) == 0 {
-		bufSz = defaultBufSz
-	} else {
-		val, err := strconv.Atoi(envVal)
-		if err != nil {
-			log.Error.Fatalf("Invalid environment variable: %s",
-				envWinSz)
-		}
-		bufSz = uint32(val)
-	}
-
-	if bufSz <= 0 {
-		log.Error.Fatalf("Invalid environment variable: %s <= 0",
-			envWinSz)
-	}
-
-	envVal = os.Getenv(envAggSz)
-	if len(envVal) == 0 {
-		aggSz = defaultAggSz
-	} else {
-		val, err := strconv.Atoi(envVal)
-		if err != nil {
-			log.Error.Fatalf("Invalid environment variable: %s",
-				envAggSz)
-		}
-		aggSz = uint32(val)
-	}
+	bufSz = WindowSize()
+	aggSz = AggregateSize()
 
 	if bufSz < aggSz {
 		log.Error.Fatalf("Invalid environment variables: %s < %s",
