@@ -38,8 +38,11 @@ func Ingress() {
 			continue
 		}
 
-		msg := buf[0:n]
+		msg := make([]byte, n)
+		copy(msg, buf[0:n])
+
 		log.Info.Printf("Sync(%s): %s", caddr, msg)
+
 		operator.QueueMsg(msg)
 	}
 }
