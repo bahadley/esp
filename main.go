@@ -15,6 +15,7 @@ import (
 func main() {
 	log.Info.Println("Starting up ...")
 
+	// Allow the node to be shut down gracefully.
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
