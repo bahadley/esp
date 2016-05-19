@@ -29,7 +29,7 @@ var (
 	mutex sync.Mutex
 )
 
-func WindowInsert(msg string) error {
+func WindowInsert(msg []byte) error {
 	newTuple := new(SensorTuple)
 
 	err := Unmarshal(msg, newTuple)

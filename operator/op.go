@@ -9,7 +9,7 @@ const (
 )
 
 var (
-	IngestChan chan string
+	IngestChan chan []byte
 	EgressChan chan []byte
 
 	// Used for IngestChan write critical section.
@@ -23,7 +23,7 @@ func Ingest() {
 	}
 }
 
-func QueueMsg(msg string) {
+func QueueMsg(msg []byte) {
 	ingestMutex.Lock()
 	{
 		IngestChan <- msg
@@ -32,6 +32,6 @@ func QueueMsg(msg string) {
 }
 
 func init() {
-	IngestChan = make(chan string, chanbufsz)
+	IngestChan = make(chan []byte, chanbufsz)
 	EgressChan = make(chan []byte, chanbufsz)
 }

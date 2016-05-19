@@ -42,13 +42,13 @@ func Ingress(master bool) {
 			continue
 		}
 
-		msg := string(buf[0:n])
+		msg := buf[0:n]
 		log.Info.Printf("Rx(%s): %s", caddr, msg)
 
 		if master {
 			operator.QueueMsg(msg)
 		} else {
-			sync.SyncChan <- buf[0:n] 
+			sync.SyncChan <- msg
 		}
 	}
 }

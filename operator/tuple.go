@@ -20,8 +20,8 @@ type (
 	}
 )
 
-func Unmarshal(msg string, st *SensorTuple) error {
-	err := json.Unmarshal([]byte(msg), &st)
+func Unmarshal(msg []byte, st *SensorTuple) error {
+	err := json.Unmarshal(msg, &st)
 	if err != nil {
 		log.Warning.Println(err.Error())
 	}

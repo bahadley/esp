@@ -41,7 +41,7 @@ func Ingress() {
 			continue
 		}
 
-		msg := string(buf[0:n])
+		msg := buf[0:n]
 		log.Info.Printf("Sync(%s): %s", caddr, msg)
 		operator.QueueMsg(msg)
 	}
