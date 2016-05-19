@@ -23,52 +23,65 @@ const (
 	defaultSyncPort   = "22219"
 )
 
-var (
-	Master bool
-
-	NodeAddr string
-	SinkAddr string
-	// MasterAddr is used by nonmaster nodes to reach the master node.
-	MasterAddr string
-
-	IngestPort string
-	SinkPort   string
-	SyncPort   string
-)
-
-func init() {
+func Master() bool {
 	m := os.Getenv(envMaster)
 	if len(m) > 0 && strings.ToUpper(m) == masterFlag {
-		Master = true
+		return true
+	} else {
+		return false
 	}
+}
 
-	NodeAddr := os.Getenv(envNodeAddr)
-	if len(NodeAddr) == 0 {
-		NodeAddr = defaultNodeAddr
+func NodeAddr() string {
+	addr := os.Getenv(envNodeAddr)
+	if len(addr) == 0 {
+		return defaultNodeAddr
+	} else {
+		return addr
 	}
+}
 
-	SinkAddr := os.Getenv(envSinkAddr)
-	if len(SinkAddr) == 0 {
-		SinkAddr = defaultSinkAddr
+func SinkAddr() string {
+	addr := os.Getenv(envSinkAddr)
+	if len(addr) == 0 {
+		return defaultSinkAddr
+	} else {
+		return addr
 	}
+}
 
-	MasterAddr := os.Getenv(envMasterAddr)
-	if len(MasterAddr) == 0 {
-		MasterAddr = defaultMasterAddr
+func MasterAddr() string {
+	addr := os.Getenv(envMasterAddr)
+	if len(addr) == 0 {
+		return defaultMasterAddr
+	} else {
+		return addr
 	}
+}
 
-	IngestPort := os.Getenv(envIngestPort)
-	if len(IngestPort) == 0 {
-		IngestPort = defaultIngestPort
+func IngestPort() string {
+	port := os.Getenv(envIngestPort)
+	if len(port) == 0 {
+		return defaultIngestPort
+	} else {
+		return port
 	}
+}
 
-	SinkPort := os.Getenv(envSinkPort)
-	if len(SinkPort) == 0 {
-		SinkPort = defaultSinkPort
+func SinkPort() string {
+	port := os.Getenv(envSinkPort)
+	if len(port) == 0 {
+		return defaultSinkPort
+	} else {
+		return port
 	}
+}
 
-	SyncPort := os.Getenv(envSyncPort)
-	if len(SyncPort) == 0 {
-		SyncPort = defaultSyncPort
+func SyncPort() string {
+	port := os.Getenv(envSyncPort)
+	if len(port) == 0 {
+		return defaultSyncPort
+	} else {
+		return port
 	}
 }

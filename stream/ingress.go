@@ -2,37 +2,34 @@ package stream
 
 import (
 	"net"
-	"os"
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
 	"github.com/bahadley/esp/sync"
+	"github.com/bahadley/esp/system"
 )
 
 const (
-	defaultIngressAddr = "localhost"
-	defaultIngressPort = "22221"
-
-	envIngressAddr = "ESP_ADDR"
-	envIngressPort = "ESP_PORT"
-
 	msgBufLen = 128
 	msgBufCap = 1024
 )
 
-var (
-	IngressAddr *net.UDPAddr
-)
-
-func Ingress(master bool) {
-	conn, err := net.ListenUDP("udp", IngressAddr)
+func Ingress() {
+	ingestAddr, err := net.ResolveUDPAddr("udp",
+		system.NodeAddr()+":"+system.IngestPort())
 	if err != nil {
 		log.Error.Fatal(err.Error())
 	}
+
+	conn, err := net.ListenUDP("udp", ingestAddr)
+	if err != nil {
+		log.Error.Fatal(err.Error())
+	}
+
 	defer conn.Close()
 
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
-		IngressAddr.String())
+		ingestAddr.String())
 
 	buf := make([]byte, msgBufLen, msgBufCap)
 	for {
@@ -45,29 +42,10 @@ func Ingress(master bool) {
 		msg := buf[0:n]
 		log.Info.Printf("Rx(%s): %s", caddr, msg)
 
-		if master {
+		if system.Master() {
 			operator.QueueMsg(msg)
 		} else {
 			sync.SyncChan <- msg
 		}
-	}
-}
-
-func init() {
-	// Build the UDP address that we will listen on.
-	addr := os.Getenv(envIngressAddr)
-	if len(addr) == 0 {
-		addr = defaultIngressAddr
-	}
-
-	port := os.Getenv(envIngressPort)
-	if len(port) == 0 {
-		port = defaultIngressPort
-	}
-
-	var err error
-	IngressAddr, err = net.ResolveUDPAddr("udp", addr+":"+port)
-	if err != nil {
-		log.Error.Fatal(err.Error())
 	}
 }
