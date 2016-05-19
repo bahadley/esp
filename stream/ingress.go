@@ -9,11 +9,6 @@ import (
 	"github.com/bahadley/esp/system"
 )
 
-const (
-	msgBufLen = 128
-	msgBufCap = 1024
-)
-
 func Ingress() {
 	ingestAddr, err := net.ResolveUDPAddr("udp",
 		system.NodeAddr()+":"+system.IngestPort())
@@ -31,7 +26,7 @@ func Ingress() {
 	log.Info.Printf("Listening for sensor tuples (%s UDP) ...",
 		ingestAddr.String())
 
-	buf := make([]byte, msgBufLen, msgBufCap)
+	buf := make([]byte, system.TupleBufLen(), system.TupleBufCap())
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {

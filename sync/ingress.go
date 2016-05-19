@@ -8,11 +8,6 @@ import (
 	"github.com/bahadley/esp/system"
 )
 
-const (
-	msgBufLen = 128
-	msgBufCap = 1024
-)
-
 func Ingress() {
 	syncAddr, err := net.ResolveUDPAddr("udp",
 		system.NodeAddr()+":"+system.SyncPort())
@@ -30,7 +25,7 @@ func Ingress() {
 	log.Info.Printf("Listening for synchronization tuples (%s UDP) ...",
 		syncAddr.String())
 
-	buf := make([]byte, msgBufLen, msgBufCap)
+	buf := make([]byte, system.TupleBufLen(), system.TupleBufCap())
 	for {
 		n, caddr, err := conn.ReadFromUDP(buf)
 		if err != nil {

@@ -14,13 +14,15 @@ const (
 	envSinkPort   = "ESP_SINK_PORT"
 	envSyncPort   = "ESP_SYNC_PORT"
 
-	masterFlag        = "YES"
-	defaultNodeAddr   = "localhost"
-	defaultSinkAddr   = "localhost"
-	defaultMasterAddr = "localhost"
-	defaultIngestPort = "22221"
-	defaultSinkPort   = "22220"
-	defaultSyncPort   = "22219"
+	masterFlag         = "YES"
+	defaultNodeAddr    = "localhost"
+	defaultSinkAddr    = "localhost"
+	defaultMasterAddr  = "localhost"
+	defaultIngestPort  = "22221"
+	defaultSinkPort    = "22220"
+	defaultSyncPort    = "22219"
+	defaultTupleBufLen = 128
+	defaultTupleBufCap = 1024
 )
 
 func Master() bool {
@@ -84,4 +86,12 @@ func SyncPort() string {
 	} else {
 		return port
 	}
+}
+
+func TupleBufLen() int {
+	return defaultTupleBufLen
+}
+
+func TupleBufCap() int {
+	return defaultTupleBufCap
 }
