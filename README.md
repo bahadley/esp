@@ -15,6 +15,8 @@ to use default values.
 
 ### Configurable environment variables ###
 
+*ESP_MASTER*=yes (Configure node as the master or not [yes, no])   
+
 *ESP_ADDR*=127.0.0.1 (IPv4 address for the esp node - listens on for ingress sensor tuples)    
 *ESP_PORT*=22221 (Port for the esp node - listens on for ingress sensor tuples)    
 *ESP_SINK_ADDR*=127.0.0.1 (IPv4 address for the sink node - destination for result stream)   
