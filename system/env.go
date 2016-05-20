@@ -13,6 +13,7 @@ const (
 	envIngestPort = "ESP_PORT"
 	envSinkPort   = "ESP_SINK_PORT"
 	envSyncPort   = "ESP_SYNC_PORT"
+	envTrace      = "ESP_TRACE"
 
 	masterFlag         = "YES"
 	defaultNodeAddr    = "localhost"
@@ -21,6 +22,7 @@ const (
 	defaultIngestPort  = "22221"
 	defaultSinkPort    = "22220"
 	defaultSyncPort    = "22219"
+	traceFlag          = "YES"
 	defaultTupleBufLen = 128
 	defaultTupleBufCap = 1024
 	defaultChanBufSz   = 10
@@ -86,6 +88,15 @@ func SyncPort() string {
 		return defaultSyncPort
 	} else {
 		return port
+	}
+}
+
+func Trace() bool {
+	t := os.Getenv(envTrace)
+	if len(t) > 0 && strings.ToUpper(t) == traceFlag {
+		return true
+	} else {
+		return false
 	}
 }
 

@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/bahadley/esp/system"
 )
 
 var (
@@ -14,8 +16,12 @@ var (
 )
 
 func init() {
-	// Change ioutil.Discard to os.Stdout to turn on tracing.
-	Trace = log.New(ioutil.Discard,
+	traceOut := ioutil.Discard
+	if system.Trace() {
+		traceOut = os.Stdout
+	}
+
+	Trace = log.New(traceOut,
 		"TRACE: ",
 		log.Ldate|log.Lmicroseconds|log.Lshortfile)
 

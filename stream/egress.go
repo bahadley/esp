@@ -31,7 +31,7 @@ func Egress() {
 	for {
 		msg := <-operator.EgressChan
 
-		log.Info.Printf("Tx(%s): %s", sinkAddr, msg)
+		log.Trace.Printf("Tx(%s): %s", sinkAddr, msg)
 
 		_, err = conn.Write(msg)
 		if err != nil {

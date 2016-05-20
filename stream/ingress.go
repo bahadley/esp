@@ -41,7 +41,7 @@ func Ingress() {
 		msg := make([]byte, n)
 		copy(msg, buf[0:n])
 
-		log.Info.Printf("Rx(%s): %s", caddr, msg)
+		log.Trace.Printf("Rx(%s): %s", caddr, msg)
 
 		if master {
 			operator.QueueMsg(msg)

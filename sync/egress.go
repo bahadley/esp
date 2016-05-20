@@ -34,7 +34,7 @@ func Egress() {
 	for {
 		msg := <-SyncChan
 
-		log.Info.Printf("Tx(%s): %s", masterAddr, msg)
+		log.Trace.Printf("Tx(%s): %s", masterAddr, msg)
 
 		_, err = conn.Write(msg)
 		if err != nil {
