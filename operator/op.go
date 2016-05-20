@@ -2,10 +2,8 @@ package operator
 
 import (
 	"sync"
-)
 
-const (
-	chanbufsz = 10
+	"github.com/bahadley/esp/system"
 )
 
 var (
@@ -19,7 +17,7 @@ var (
 func Ingest() {
 	for {
 		msg := <-IngestChan
-		_ = WindowInsert(msg)
+		windowInsert(msg)
 	}
 }
 
@@ -32,6 +30,7 @@ func QueueMsg(msg []byte) {
 }
 
 func init() {
-	IngestChan = make(chan []byte, chanbufsz)
-	EgressChan = make(chan []byte, chanbufsz)
+	bufSz := system.ChannelBufSz()
+	IngestChan = make(chan []byte, bufSz)
+	EgressChan = make(chan []byte, bufSz)
 }

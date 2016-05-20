@@ -1,8 +1,6 @@
 package operator
 
 import (
-	"sync"
-
 	"github.com/bahadley/esp/log"
 )
 
@@ -14,36 +12,30 @@ var (
 	bufSz uint32
 	// Number of tuples that will compose the aggregate calculation.
 	aggSz uint32
-
-	// Used for window modification critical section.
-	mutex sync.Mutex
 )
 
-func WindowInsert(msg []byte) error {
+func windowInsert(msg []byte) error {
 	newTuple := new(SensorTuple)
 
 	err := Unmarshal(msg, newTuple)
 	if err != nil {
 		log.Warning.Printf("Failed to unmarshal tuple: %s", msg)
-	} else {
-		mutex.Lock()
-		{
-			if insert(newTuple) && window[bufSz-1] != nil {
-				// A tuple was inserted and the window is full.
-				avg := aggregate()
-				aggTuple, err := Marshal(newTuple.Sensor, avg)
-				if err != nil {
-					log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
-						newTuple.Sensor)
-				} else {
-					EgressChan <- aggTuple
-				}
-			}
-		}
-		mutex.Unlock()
+		return err
 	}
 
-	return err
+	if insert(newTuple) && window[bufSz-1] != nil {
+		// A tuple was inserted and the window is full.
+		avg := aggregate()
+		aggTuple, err := Marshal(newTuple.Sensor, avg)
+		if err != nil {
+			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
+				newTuple.Sensor)
+		} else {
+			EgressChan <- aggTuple
+		}
+	}
+
+	return nil
 }
 
 func insert(tmp *SensorTuple) bool {

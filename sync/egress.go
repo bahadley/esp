@@ -7,10 +7,6 @@ import (
 	"github.com/bahadley/esp/system"
 )
 
-const (
-	chanbufsz = 10
-)
-
 var (
 	SyncChan chan []byte
 )
@@ -48,5 +44,5 @@ func Egress() {
 }
 
 func init() {
-	SyncChan = make(chan []byte, chanbufsz)
+	SyncChan = make(chan []byte, system.ChannelBufSz())
 }

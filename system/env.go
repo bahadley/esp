@@ -23,6 +23,7 @@ const (
 	defaultSyncPort    = "22219"
 	defaultTupleBufLen = 128
 	defaultTupleBufCap = 1024
+	defaultChanBufSz   = 10
 )
 
 func Master() bool {
@@ -88,10 +89,14 @@ func SyncPort() string {
 	}
 }
 
-func TupleBufLen() int {
+func TupleBufLen() uint32 {
 	return defaultTupleBufLen
 }
 
-func TupleBufCap() int {
+func TupleBufCap() uint32 {
 	return defaultTupleBufCap
+}
+
+func ChannelBufSz() int {
+	return defaultChanBufSz
 }
