@@ -9,6 +9,10 @@ import (
 	"github.com/bahadley/esp/system"
 )
 
+var (
+	master bool
+)
+
 func Ingress() {
 	ingestAddr, err := net.ResolveUDPAddr("udp",
 		system.NodeAddr()+":"+system.IngestPort())
@@ -39,10 +43,15 @@ func Ingress() {
 
 		log.Info.Printf("Rx(%s): %s", caddr, msg)
 
-		if system.Master() {
+		if master {
 			operator.QueueMsg(msg)
 		} else {
+			// Send tuple to the master node.
 			sync.SyncChan <- msg
 		}
 	}
+}
+
+func init() {
+	master = system.Master()
 }
