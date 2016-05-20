@@ -27,4 +27,6 @@ to use default values.
 *ESP_SINK_PORT*=22220 (Port for the sink node - destination for result stream)   
 
 *ESP_WINDOW_SIZE*=4 (Maximum number of tuples that can be buffered in the window)   
-*ESP_AGGREGATE_SIZE*=2 (Number of tuples that will trigger an egress result tuple)
+*ESP_AGGREGATE_SIZE*=2 (Number of tuples that will trigger an egress result tuple)    
+
+*ESP_TRACE*=no (Enable tracing [yes, no])
