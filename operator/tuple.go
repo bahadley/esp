@@ -13,10 +13,10 @@ const (
 
 type (
 	SensorTuple struct {
-		Sensor    string    `json:"sensor"`
-		Type      string    `json:"type"`
-		Timestamp int64		 `json:"ts"`
-		Data      float64   `json:"data"`
+		Sensor    string  `json:"sensor"`
+		Type      string  `json:"type"`
+		Timestamp int64   `json:"ts"`
+		Data      float64 `json:"data"`
 	}
 )
 
