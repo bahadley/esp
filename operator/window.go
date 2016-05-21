@@ -48,7 +48,7 @@ func insert(tmp *SensorTuple) bool {
 	} else {
 		for idx, st := range window {
 			if inserted ||
-				(!inserted && st != nil && tmp.Timestamp.After(st.Timestamp)) {
+				(!inserted && st != nil && tmp.Timestamp > st.Timestamp) {
 				// Insert the new tuple and shift the subsequent tuples towards
 				// the back of the window.  The last tuple will fall off if the
 				// window is full.

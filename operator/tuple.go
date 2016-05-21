@@ -15,7 +15,7 @@ type (
 	SensorTuple struct {
 		Sensor    string    `json:"sensor"`
 		Type      string    `json:"type"`
-		Timestamp time.Time `json:"ts"`
+		Timestamp int64		 `json:"ts"`
 		Data      float64   `json:"data"`
 	}
 )
@@ -33,7 +33,7 @@ func Marshal(sensor string, data float64) ([]byte, error) {
 
 	st.Sensor = sensor
 	st.Type = aggregateId
-	st.Timestamp = time.Now().UTC()
+	st.Timestamp = time.Now().UnixNano()
 	st.Data = data
 
 	msg, err := json.Marshal(st)
