@@ -69,7 +69,7 @@ func aggregate() float64 {
 		sum += window[idx].Data
 		window[idx] = nil
 	}
-	return sum / float64(aggSz)
+	return toFixed(sum/float64(aggSz), 2)
 }
 
 func init() {
