@@ -4,11 +4,11 @@
 ### How can I run it? ###
 esp can be run as a Linux command (for example):     
 
-$ ESP_MASTER=yes esp    
+``` $ ESP_MASTER=yes esp ```    
 
 with environment variables configured, or just   
 
-$ esp   
+``` $ esp ```   
 
 to use default values.   
 
