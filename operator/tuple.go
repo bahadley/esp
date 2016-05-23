@@ -27,6 +27,7 @@ func Unmarshal(msg []byte) (*SensorTuple, error) {
 	if err != nil {
 		log.Warning.Println(err.Error())
 	}
+
 	return st, err
 }
 
@@ -42,5 +43,6 @@ func Marshal(sensor string, data float64) ([]byte, error) {
 	if err != nil {
 		log.Warning.Println(err.Error())
 	}
+
 	return msg, err
 }
