@@ -15,9 +15,7 @@ var (
 )
 
 func windowInsert(msg []byte) error {
-	newTuple := new(SensorTuple)
-
-	err := Unmarshal(msg, newTuple)
+	newTuple, err := Unmarshal(msg)
 	if err != nil {
 		log.Warning.Printf("Failed to unmarshal tuple: %s", msg)
 		return err
