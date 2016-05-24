@@ -39,6 +39,8 @@ func Ingress() {
 			continue
 		}
 
+		arrivalTime := time.Now().UnixNano()
+
 		log.Trace.Printf("Rx(%s): %s", caddr, buf[0:n])
 
 		aggTuple, err := operator.Unmarshal(buf[0:n])
@@ -47,7 +49,7 @@ func Ingress() {
 			continue
 		}
 
-		aggTuple.Timestamp = time.Now().UnixNano()
+		aggTuple.Timestamp = arrivalTime
 
 		outputChan <- aggTuple
 	}
