@@ -53,5 +53,10 @@ func AggregateSize() uint32 {
 		aggSz = uint32(val)
 	}
 
+	if aggSz <= 0 {
+		log.Error.Fatalf("Invalid environment variable: %s <= 0",
+			envAggSz)
+	}
+
 	return aggSz
 }
