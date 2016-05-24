@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	envMaster     = "ESP_MASTER"
+	envNodeType   = "ESP_NODE_TYPE"
 	envNodeAddr   = "ESP_ADDR"
 	envSinkAddr   = "ESP_SINK_ADDR"
 	envMasterAddr = "ESP_MASTER_ADDR"
@@ -15,7 +15,11 @@ const (
 	envSyncPort   = "ESP_SYNC_PORT"
 	envTrace      = "ESP_TRACE"
 
-	masterFlag         = "YES"
+	nonMasterNode = "N"
+	masterNode    = "M"
+	sinkNode      = "S"
+
+	defaultNodeType    = nonMasterNode
 	defaultNodeAddr    = "localhost"
 	defaultSinkAddr    = "localhost"
 	defaultMasterAddr  = "localhost"
@@ -28,13 +32,30 @@ const (
 	defaultChanBufSz   = 10
 )
 
+var (
+	nodeType string
+)
+
 func Master() bool {
-	m := os.Getenv(envMaster)
-	if len(m) > 0 && strings.ToUpper(m) == masterFlag {
-		return true
-	} else {
-		return false
+	if len(nodeType) == 0 {
+		m := os.Getenv(envNodeType)
+		if len(m) > 0 && strings.ToUpper(m) == masterNode {
+			nodeType = masterNode
+		}
 	}
+
+	return nodeType == masterNode
+}
+
+func Sink() bool {
+	if len(nodeType) == 0 {
+		s := os.Getenv(envNodeType)
+		if len(s) > 0 && strings.ToUpper(s) == sinkNode {
+			nodeType = sinkNode
+		}
+	}
+
+	return nodeType == sinkNode
 }
 
 func NodeAddr() string {

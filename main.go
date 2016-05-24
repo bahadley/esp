@@ -7,6 +7,7 @@ import (
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
+	"github.com/bahadley/esp/sink"
 	"github.com/bahadley/esp/stream"
 	"github.com/bahadley/esp/sync"
 	"github.com/bahadley/esp/system"
@@ -30,8 +31,12 @@ func main() {
 		go stream.Egress()
 		go sync.Ingress()
 		go operator.Ingest()
+		stream.Ingress()
+	} else if system.Sink() {
+		sink.Ingress()
 	} else {
+		// Non-master node
 		go sync.Egress()
+		stream.Ingress()
 	}
-	stream.Ingress()
 }
