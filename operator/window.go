@@ -69,12 +69,7 @@ func aggregate() float64 {
 		window[idx] = nil
 	}
 
-	div := aggSz
-	if div == 0 {
-		div = 1
-	}
-
-	return RoundDecimal(sum/float64(div), 2)
+	return RoundDecimal(sum/float64(aggSz), 2)
 }
 
 func init() {
