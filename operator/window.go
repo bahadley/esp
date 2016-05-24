@@ -63,11 +63,18 @@ func insert(tmp *SensorTuple) bool {
 func aggregate() float64 {
 	// Calculate the aggregation and flush the tuples that were used.
 	sum := 0.0
+
 	for idx := bufSz - aggSz; idx < bufSz; idx++ {
 		sum += window[idx].Data
 		window[idx] = nil
 	}
-	return RoundDecimal(sum/float64(aggSz), 2)
+
+	div := aggSz
+	if div == 0 {
+		div = 1
+	}
+
+	return RoundDecimal(sum/float64(div), 2)
 }
 
 func init() {
