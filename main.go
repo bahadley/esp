@@ -33,6 +33,7 @@ func main() {
 		go operator.Ingest()
 		stream.Ingress()
 	} else if system.Sink() {
+		go sink.Output()
 		sink.Ingress()
 	} else {
 		// Non-master node

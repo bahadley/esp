@@ -29,7 +29,7 @@ const (
 	traceFlag          = "YES"
 	defaultTupleBufLen = 128
 	defaultTupleBufCap = 1024
-	defaultChanBufSz   = 10
+	defaultChanBufSz   = 1000
 )
 
 var (

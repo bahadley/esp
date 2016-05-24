@@ -25,11 +25,11 @@ func init() {
 		"TRACE: ",
 		log.Ldate|log.Lmicroseconds|log.Lshortfile)
 
-	Info = log.New(os.Stdout,
+	Info = log.New(os.Stderr,
 		"INFO: ",
 		log.Ldate|log.Ltime)
 
-	Warning = log.New(os.Stdout,
+	Warning = log.New(os.Stderr,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 

@@ -1,10 +1,17 @@
 package sink
 
 import (
+	"fmt"
 	"net"
+	"time"
 
 	"github.com/bahadley/esp/log"
+	"github.com/bahadley/esp/operator"
 	"github.com/bahadley/esp/system"
+)
+
+var (
+	outputChan chan *operator.SensorTuple
 )
 
 func Ingress() {
@@ -33,5 +40,26 @@ func Ingress() {
 		}
 
 		log.Trace.Printf("Rx(%s): %s", caddr, buf[0:n])
+
+		aggTuple, err := operator.Unmarshal(buf[0:n])
+		if err != nil {
+			log.Warning.Printf("Failed to unmarshal tuple: %s", buf[0:n])
+			continue
+		}
+
+		aggTuple.Timestamp = time.Now().UnixNano()
+
+		outputChan <- aggTuple
+	}
+}
+
+func Output() {
+	outputChan = make(chan *operator.SensorTuple, system.ChannelBufSz())
+
+	for {
+		aggTuple := <-outputChan
+
+		fmt.Printf("%d,%s,%.2f\n", aggTuple.Timestamp,
+			aggTuple.Type, aggTuple.Data)
 	}
 }
