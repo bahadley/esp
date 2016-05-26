@@ -3,6 +3,7 @@ package sink
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/bahadley/esp/log"
 	"github.com/bahadley/esp/operator"
@@ -38,6 +39,8 @@ func Ingress() {
 			continue
 		}
 
+		arrivalTime := time.Now().UnixNano()
+
 		log.Trace.Printf("Rx(%s): %s", caddr, buf[0:n])
 
 		aggTuple, err := operator.Unmarshal(buf[0:n])
@@ -45,6 +48,8 @@ func Ingress() {
 			log.Warning.Printf("Failed to unmarshal tuple: %s", buf[0:n])
 			continue
 		}
+
+		aggTuple.Timestamp = arrivalTime
 
 		outputChan <- aggTuple
 	}
