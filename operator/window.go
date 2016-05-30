@@ -50,6 +50,7 @@ func insert(tmp *SensorTuple) bool {
 		// This case only occurs for the very first tuple received by the operator.
 		// Handling this special case simplifies the remaining logic.
 		window[0] = tmp
+		inserted = true
 	} else {
 		for idx, st := range window {
 			if inserted ||
