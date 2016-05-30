@@ -21,7 +21,9 @@ func windowInsert(msg []byte) error {
 		return err
 	}
 
-	if insert(newTuple) && window[bufSz-1] != nil {
+	inserted := insert(newTuple)
+
+	if inserted && window[bufSz-1] != nil {
 		// A tuple was inserted and the window is full.
 		avg := aggregate()
 		aggTuple, err := Marshal(newTuple.Sensor, avg)
@@ -31,6 +33,11 @@ func windowInsert(msg []byte) error {
 		} else {
 			EgressChan <- aggTuple
 		}
+	}
+
+	if !inserted {
+		log.Warning.Printf("Sensor %s tuple %d not inserted",
+			newTuple.Sensor, newTuple.Timestamp)
 	}
 
 	return nil
