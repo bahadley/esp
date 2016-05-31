@@ -58,22 +58,21 @@ func windowInsert(msg []byte) error {
 func insert(tmp *SensorTuple) bool {
 	inserted := false
 
-	if window[0] == nil {
-		// This case only occurs for the very first tuple received by the operator.
-		// Handling this special case simplifies the remaining logic.
-		window[0] = tmp
-		inserted = true
-	} else {
-		for idx, st := range window {
-			if inserted ||
-				(!inserted && st != nil && tmp.Timestamp > st.Timestamp) {
-				// Insert the new tuple and shift the subsequent tuples towards
-				// the back of the window.  The last tuple will fall off if the
-				// window is full.
-				window[idx] = tmp
-				tmp = st
-				inserted = true
-			}
+	for idx, st := range window {
+		if inserted ||
+			(!inserted && st != nil && tmp.Timestamp > st.Timestamp) {
+			// Insert the new tuple and shift the subsequent tuples towards
+			// the back of the window.  The last tuple will fall off if the
+			// window is full.
+			window[idx] = tmp
+			tmp = st
+			inserted = true
+		} else if !inserted && st == nil {
+			// Window is currently empty and this is the first arriving tuple, or ...
+			// Out of order arrival and there is room at the back of the window.
+			window[idx] = tmp
+			inserted = true
+			break
 		}
 	}
 
