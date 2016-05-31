@@ -4,6 +4,8 @@ import (
 	"github.com/bahadley/esp/log"
 )
 
+const flushType = "F"
+
 var (
 	// Invariant:  Tupls are in descending order by SensorTuple.Timestamp.
 	window []*SensorTuple
@@ -21,10 +23,21 @@ func windowInsert(msg []byte) error {
 		return err
 	}
 
-	inserted := insert(newTuple)
+	agg := false
 
-	if inserted && window[bufSz-1] != nil {
-		// A tuple was inserted and the window is full.
+	if newTuple.Type == flushType {
+		agg = true
+	} else {
+		if insert(newTuple) {
+			agg = true
+		} else {
+			log.Warning.Printf("Sensor %s tuple %d not inserted",
+				newTuple.Sensor, newTuple.Timestamp)
+		}
+	}
+
+	if agg && window[bufSz-1] != nil {
+		// Flushing or a tuple was inserted and the window is full.
 		avg := aggregate()
 		aggTuple, err := Marshal(newTuple.Sensor, avg)
 		if err != nil {
@@ -35,9 +48,9 @@ func windowInsert(msg []byte) error {
 		}
 	}
 
-	if !inserted {
-		log.Warning.Printf("Sensor %s tuple %d not inserted",
-			newTuple.Sensor, newTuple.Timestamp)
+	if newTuple.Type == flushType {
+		// Complete the flush of all tuples.
+		flush()
 	}
 
 	return nil
@@ -78,6 +91,12 @@ func aggregate() float64 {
 	}
 
 	return RoundDecimal(sum/float64(aggSz), 2)
+}
+
+func flush() {
+	for i := uint32(0); i < bufSz; i++ {
+		window[i] = nil
+	}
 }
 
 func init() {
