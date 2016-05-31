@@ -24,21 +24,25 @@ func windowInsert(msg []byte) error {
 	}
 
 	agg := false
+	avg := 0.0
+
+	inserted := insert(newTuple)
+	if !inserted {
+		log.Warning.Printf("Sensor %s tuple %d not inserted",
+			newTuple.Sensor, newTuple.Timestamp)
+	}
 
 	if newTuple.Type == flushType {
-		agg = true
+		avg, agg = flush()
 	} else {
-		if insert(newTuple) {
+		if inserted && window[bufSz-1] != nil {
+			// Tuple was inserted and the window is full.
+			avg = aggregate()
 			agg = true
-		} else {
-			log.Warning.Printf("Sensor %s tuple %d not inserted",
-				newTuple.Sensor, newTuple.Timestamp)
 		}
 	}
 
-	if agg && window[bufSz-1] != nil {
-		// Flushing or a tuple was inserted and the window is full.
-		avg := aggregate()
+	if agg {
 		aggTuple, err := Marshal(newTuple.Sensor, avg)
 		if err != nil {
 			log.Warning.Printf("Failed to marshal aggregate tuple for sensor: %s",
@@ -46,11 +50,6 @@ func windowInsert(msg []byte) error {
 		} else {
 			EgressChan <- aggTuple
 		}
-	}
-
-	if newTuple.Type == flushType {
-		// Complete the flush of all tuples.
-		flush()
 	}
 
 	return nil
@@ -93,10 +92,22 @@ func aggregate() float64 {
 	return RoundDecimal(sum/float64(aggSz), 2)
 }
 
-func flush() {
-	for i := uint32(0); i < bufSz; i++ {
-		window[i] = nil
+func flush() (float64, bool) {
+	// Calculate the aggregation and flush all the tuples.
+	// Take the aggregation from the front of the window in a flush.
+	agg := true
+	sum := 0.0
+
+	for idx := uint32(0); idx < bufSz; idx++ {
+		if idx < aggSz && window[idx] == nil {
+			agg = false
+		} else if idx < aggSz {
+			sum += window[idx].Data
+		}
+		window[idx] = nil
 	}
+
+	return RoundDecimal(sum/float64(aggSz), 2), agg
 }
 
 func init() {
