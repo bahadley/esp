@@ -1,5 +1,9 @@
-# esp
+# esp (edge stream processor)
 
+### What is esp?
+
+It is a basic stream processing application uses for academic experiments.  It implements a
+simple aggregation operator with a sliding window.
 
 ### How can I run it? ###
 esp can be run as a Linux command (for example):     
